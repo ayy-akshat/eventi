@@ -10,6 +10,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import AppHeader from "../../components/appHeader";
 import styles from "../../stuff/styles";
+import firebase from "firebase";
 
 export default class AccountScreen extends React.Component {
   render() {
@@ -32,6 +33,10 @@ export default class AccountScreen extends React.Component {
             }}
           />
 
+          <Text style={styles.subText}>
+            {firebase.auth().currentUser.email}
+          </Text>
+
           <View style={styles.optionButtonsContainer}>
             <TouchableOpacity
               style={styles.optionButton}
@@ -45,7 +50,8 @@ export default class AccountScreen extends React.Component {
     );
   }
 
-  signOut = () => {
+  signOut = async () => {
+    await firebase.auth().signOut();
     this.props.parentNavigation.navigate("StartScreen");
   };
 }
