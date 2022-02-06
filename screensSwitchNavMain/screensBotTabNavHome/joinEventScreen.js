@@ -6,10 +6,12 @@ import {
   KeyboardAvoidingView,
   TouchableOpacity,
   TextInput,
+  Alert,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import AppHeader from "../../components/appHeader";
 import styles from "../../stuff/styles";
+import firebase from "firebase";
 
 export default class JoinEventScreen extends React.Component {
   constructor() {
@@ -57,7 +59,23 @@ export default class JoinEventScreen extends React.Component {
     );
   }
 
-  joinEvent = () => {
-    this.setState({joinId: ""});
+  joinEvent = async () => {
+    if (!this.state.joinId)
+    {
+      Alert.alert("Enter something");
+      return;
+    }
+    var ref = await firebase.database().ref("events/" + this.state.joinId + "/").get();
+    if (!ref.exists())
+    {
+      Alert.alert(`Event with ID ${this.state.joinId} does not exist.`);
+    }
+    else
+    {
+      let t = {};
+      t[firebase.auth().currentUser.uid] = true
+      var ref = await firebase.database().ref("events/" + this.state.joinId + "/people/").update(t);
+    }
+    // this.setState({joinId: ""});
   }
 }

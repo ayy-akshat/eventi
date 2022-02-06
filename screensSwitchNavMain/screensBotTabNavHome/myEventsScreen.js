@@ -11,6 +11,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import AppHeader from "../../components/appHeader";
 import styles from "../../stuff/styles";
+import firebase from "firebase";
 
 export default class MyEventsScreen extends React.Component {
   constructor() {
@@ -55,6 +56,11 @@ export default class MyEventsScreen extends React.Component {
         },
       ],
     };
+  }
+
+  componentDidMount()
+  {
+    this.getEvents();
   }
 
   render() {
@@ -154,22 +160,26 @@ export default class MyEventsScreen extends React.Component {
           >
             <Text style={styles.eventItemEditButtonText}>View</Text>
           </TouchableOpacity>
-          {(() =>
-            item.mine ? (
-              <TouchableOpacity
-                style={styles.eventItemEditButton}
-                onPress={() => {
-                  this.props.navigation.navigate("Create Event", {
-                    editing: item.id,
-                    eventInfo: JSON.parse(JSON.stringify(item)),
-                  });
-                }}
-              >
-                <Text style={styles.eventItemEditButtonText}>Edit</Text>
-              </TouchableOpacity>
-            ) : undefined)()}
         </View>
       </View>
     );
-  };
+  }
+
+  getEvents = async () => {
+    var events = await (await firebase.database().ref("/events/").get()).toJSON();
+    console.log(events);
+    var myEvents = [];
+    for (var i in events)
+    {
+      if (events[i].people[firebase.auth().currentUser.uid])
+      {
+        console.log("HUSDFGJDJKSJDGHDKSLDGJHKSALFGHDKSLFGHFDKSLFJGHFK");1
+        var obj = JSON.parse(JSON.stringify(events[i]))
+        obj.id = i;
+        myEvents.push(events[i]);
+      }
+    }
+
+    this.setState({events: myEvents});
+  }
 }

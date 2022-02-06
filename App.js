@@ -3,6 +3,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import SwitchNavMain from './navigation/switchNavMain';
 import firebase from 'firebase';
 import firebaseConfig from './firebaseConfig';
+import { LogBox } from 'react-native';
+
+LogBox.ignoreAllLogs();
 
 
 export default function App() {

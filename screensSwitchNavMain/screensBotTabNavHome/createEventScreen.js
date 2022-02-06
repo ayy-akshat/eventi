@@ -7,10 +7,12 @@ import {
   TextInput,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import AppHeader from "../../components/appHeader";
 import styles from "../../stuff/styles";
+import firebase from "firebase";
 
 export default class CreateEventScreen extends React.Component {
   constructor() {
@@ -30,9 +32,8 @@ export default class CreateEventScreen extends React.Component {
 
   componentDidMount() {
     if (this.props.route.params) {
-      if (this.props.route.params.editing != "")
-      {
-        let p = this.props.route.params
+      if (this.props.route.params.editing != "") {
+        let p = this.props.route.params;
         this.setState({
           editingId: p.editing,
           eventName: p.eventInfo.eventName,
@@ -208,7 +209,7 @@ export default class CreateEventScreen extends React.Component {
               <TextInput
                 value={this.state.year}
                 placeholder="YYYY"
-                maxLength={2}
+                maxLength={4}
                 style={[
                   styles.optionTextInput,
                   {
@@ -227,7 +228,7 @@ export default class CreateEventScreen extends React.Component {
               />
             </View>
 
-            <TouchableOpacity style={[styles.optionButton, { marginTop: 40 }]}>
+            <TouchableOpacity style={[styles.optionButton, { marginTop: 40 }]} onPress={this.createEvent}>
               <Text style={styles.optionButtonText}>Create</Text>
             </TouchableOpacity>
           </ScrollView>
@@ -249,5 +250,30 @@ export default class CreateEventScreen extends React.Component {
       year: "2022",
       editingId: "",
     });
+  };
+
+  createEvent = async () => {
+    if (!this.state.eventName)
+    {
+      Alert.alert("Enter something");
+    }
+    var eventInfo = {
+      eventName: this.state.eventName,
+      time: {
+        year: this.state.year,
+        month: this.state.month,
+        day: this.state.day,
+        hour: this.state.hour,
+        minute: this.state.minute,
+      },
+      people: {},
+      location: this.state.location,
+      manager: firebase.auth().currentUser.uid
+    }
+    eventInfo.people[firebase.auth().currentUser.uid] = true;
+
+    var id = firebase.database().ref("/events/").push(eventInfo, (a) => {
+    });
+    Alert.alert("Created Event! ID " + id.key());
   };
 }
